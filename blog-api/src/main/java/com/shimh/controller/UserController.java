@@ -8,6 +8,7 @@ import com.alibaba.fastjson.support.spring.annotation.FastJsonFilter;
 import com.alibaba.fastjson.support.spring.annotation.FastJsonView;
 import com.shimh.common.annotation.LogAnnotation;
 import com.shimh.entity.Article;
+import com.shimh.service.IUserService;
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.authz.annotation.RequiresAuthentication;
 import org.apache.shiro.authz.annotation.RequiresRoles;
@@ -44,6 +45,9 @@ public class UserController {
     @Autowired
     private UserService userService;
 
+    @Autowired
+    private IUserService iUserService;
+
     @GetMapping
     @LogAnnotation(module = "用户", operation = "获取所有用户")
     @RequiresRoles(Base.ROLE_ADMIN)
@@ -51,6 +55,26 @@ public class UserController {
         List<User> users = userService.findAll();
 
         return Result.success(users);
+    }
+
+
+    @GetMapping("/m2/{id}")
+    @LogAnnotation(module = "用户", operation = "根据id获取用户")
+    @RequiresRoles(Base.ROLE_ADMIN)
+    public Result getUserById2(@PathVariable("id") Long id) {
+
+        Result r = new Result();
+
+        if (null == id) {
+            r.setResultCode(ResultCode.PARAM_IS_BLANK);
+            return r;
+        }
+
+        User user = iUserService.getUserById(id);
+
+        r.setResultCode(ResultCode.SUCCESS);
+        r.setData(user);
+        return r;
     }
 
     @GetMapping("/{id}")
